@@ -3,7 +3,7 @@ import NavBar from './NavBar.jsx';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
 
-const ws = new WebSocket("ws://10.30.10.167:3001/");
+// const ws = new WebSocket("ws://10.30.10.167:3001/");
 
 const dataObj = {
   currentUser: {name: 'Bob'}, // optional. if currentUser is not defined, it means the user is Anonymous
@@ -34,10 +34,10 @@ class App extends Component {
 
   componentDidMount() {
   console.log('componentDidMount <App />');
-  ws.onopen = function(evt) {
-    console.log('Established connection!', evt);
-    // setupApp();
-  }
+  // ws.onopen = function(evt) {
+  //   console.log('Established connection!', evt);
+  //   // setupApp();
+  // }
   setTimeout(() => {
     console.log('Simulating incoming message');
     const newMessage = {id: 3, username: 'Michelle', content: 'Hello there!'};
