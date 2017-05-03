@@ -3,7 +3,7 @@ import NavBar from './NavBar.jsx';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
 
-const ws = new WebSocket("ws://10.30.10.167:3001/");
+const ws = new WebSocket("ws://localhost:3001");
 
 const dataObj = {
   currentUser: {name: 'Bob'}, // optional. if currentUser is not defined, it means the user is Anonymous
@@ -24,8 +24,8 @@ const dataObj = {
 class App extends Component {
   constructor(props) {
     super(props);
-
     this.state = dataObj;
+    this.ws = ws;
   }
 
   get newId() {
@@ -34,7 +34,8 @@ class App extends Component {
 
   componentDidMount() {
   console.log('componentDidMount <App />');
-  ws.onopen = function(evt) {
+
+  this.ws.onopen = (evt) => {
     console.log('Established connection!', evt);
     // setupApp();
   }
