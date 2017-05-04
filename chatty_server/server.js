@@ -21,10 +21,19 @@ function broadcast(data) {
 
 //to add uuid to every message then broadcast to all users
 function handleMessage(data) {
-  data = JSON.parse(data);
-  data.id = uuid();
-  console.log('Message received!!', data);
-  broadcast(JSON.stringify(data));
+  const message = JSON.parse(data)
+  switch(message.type) {
+    case "postMessage":
+    message.id = uuid();
+    message.type = "incomingMessage";
+    console.log('Message received!!', message);
+      break;
+    case "postNotification":
+    message.id = uuid();
+    message.type = "incomingNotification";
+      break;
+  }
+    broadcast(JSON.stringify(message));
 }
 
 function handleConnection(client) {

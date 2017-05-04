@@ -3,10 +3,9 @@ import NavBar from './NavBar.jsx';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
 
-const ws = new WebSocket("ws://localhost:3001");
 
 const dataObj = {
-  currentUser: {name: 'Bob'}, // optional. if currentUser is not defined, it means the user is Anonymous
+  currentUser: {name: 'Anonymous'}, // optional. if currentUser is not defined, it means the user is Anonymous
   messages: []
 }
 
@@ -14,7 +13,6 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = dataObj;
-    this.ws = ws;
   }
 
   get newId() {
@@ -23,27 +21,42 @@ class App extends Component {
 
   componentDidMount() {
     console.log('componentDidMount <App />');
+    this.ws = new WebSocket("ws://localhost:3001");
 
     this.ws.onopen = (evt) => {
       console.log('Established connection!', evt);
     }
 
     this.ws.onmessage = (evt) => {
-      let msg = JSON.parse(evt.data);
-      console.log(msg);
-      const messages = this.state.messages.concat(msg);
-      this.setState({messages: messages});
+      let newMsg = JSON.parse(evt.data);
+        this.setState({messages: this.state.messages.concat(newMsg)});
     }
   } 
 
+  userChecker = (username) => {
+    return username === '' ? 'Anonymous' : username;
+  }
 
-  onNewMessage = (input) => {
+  onNewMessage = (content) => {
     const newMessage = {
+      type: "postMessage",
       id: this.newId, 
-      username: input.user, 
-      content: input.content
+      username: this.state.currentUser.name, 
+      content: content.content
     };
     this.ws.send(JSON.stringify(newMessage));
+  }
+
+  postNotification = (newUser) => {
+    const oldUser = this.state.currentUser.name;
+    if (oldUser !== newUser) {
+      const changeName = {
+        type: "postNotification",
+        content: `${oldUser} has changed their name to ${newUser}`
+      }
+      this.setState({currentUser: {name: newUser}});
+      this.ws.send(JSON.stringify(changeName));
+    }
   }
 
   render() {
@@ -51,7 +64,10 @@ class App extends Component {
       <div>
           <NavBar />
           <MessageList allMessages={ this.state.messages }/>
-          <ChatBar user={ this.state.currentUser.name } onNewMessage={ this.onNewMessage }/>
+          <ChatBar 
+            currentUser={ this.state.currentUser.name}
+            postNotification={ this.postNotification } 
+            onNewMessage={ this.onNewMessage }/>
       </div>
     );
   }

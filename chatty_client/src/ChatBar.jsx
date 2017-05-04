@@ -16,14 +16,15 @@ class ChatBar extends Component {
   }
 
   changeUser = (e) => {
-    this.setState({username: e.target.value});
+    if (e.key === 'Tab') {
+      this.props.postNotification(e.target.value);
+    }
   }
 
   onEnter = (e) => {
     if (e.key === 'Enter') {
-      this.props.onNewMessage({user:this.state.username, content: this.state.content});
+      this.props.onNewMessage({type: "incomingNotification", username: this.state.username, content: this.state.content});
       this.setState({
-        username: '',
         content: ''
       });
     }
@@ -34,9 +35,8 @@ class ChatBar extends Component {
       <footer className="chatbar">
           <input 
             className="chatbar-username" 
-            placeholder="You're username" 
-            onChange={ this.changeUser } 
-            value={ this.state.username }/>
+            placeholder={ this.props.currentUser } 
+            onKeyDown={ this.changeUser }/>
           <input 
             className="chatbar-message" 
             placeholder="Type a message and hit ENTER" 
