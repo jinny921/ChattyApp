@@ -7,18 +7,7 @@ const ws = new WebSocket("ws://localhost:3001");
 
 const dataObj = {
   currentUser: {name: 'Bob'}, // optional. if currentUser is not defined, it means the user is Anonymous
-  messages: [
-    {
-      id: 1,
-      username: 'Bob',
-      content: 'Has anyone seen my marbles?',
-    },
-    {
-      id: 2,
-      username: 'Anonymous',
-      content: 'No, I think you lost them. You lost your marbles Bob. You lost them for good.'
-    }
-  ]
+  messages: []
 }
 
 class App extends Component {
@@ -33,24 +22,28 @@ class App extends Component {
   }
 
   componentDidMount() {
-  console.log('componentDidMount <App />');
+    console.log('componentDidMount <App />');
 
-  this.ws.onopen = (evt) => {
-    console.log('Established connection!', evt);
-    // setupApp();
-  }
-  setTimeout(() => {
-    console.log('Simulating incoming message');
-    const newMessage = {id: 3, username: 'Michelle', content: 'Hello there!'};
-    const messages = this.state.messages.concat(newMessage)
-    this.setState({messages: messages})
-    }, 3000);
+    this.ws.onopen = (evt) => {
+      console.log('Established connection!', evt);
+    }
+
+    this.ws.onmessage = (evt) => {
+      let msg = JSON.parse(evt.data);
+      console.log(msg);
+      const messages = this.state.messages.concat(msg);
+      this.setState({messages: messages});
+    }
   } 
 
+
   onNewMessage = (input) => {
-    const newMessage = {id: this.newId, username: input.user, content: input.content};
-    const messages = this.state.messages.concat(newMessage);
-    this.setState({messages: messages});
+    const newMessage = {
+      id: this.newId, 
+      username: input.user, 
+      content: input.content
+    };
+    this.ws.send(JSON.stringify(newMessage));
   }
 
   render() {
