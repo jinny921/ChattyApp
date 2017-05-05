@@ -24,22 +24,52 @@ function handleMessage(data) {
   const message = JSON.parse(data)
   switch(message.type) {
     case "postMessage":
-    message.id = uuid();
-    message.type = "incomingMessage";
-    console.log('Message received!!', message);
+      message.id = uuid();
+      message.type = "incomingMessage";
+      console.log('Message received!!');
       break;
     case "postNotification":
-    message.id = uuid();
-    message.type = "incomingNotification";
+      message.id = uuid();
+      message.type = "incomingNotification";
       break;
   }
     broadcast(JSON.stringify(message));
 }
 
-function handleConnection(client) {
-  console.log('Client connected');
-  client.on('message', handleMessage);
-  // ws.on('close', () => console.log('Client disconnected'));
+function handleConnection(ws) {
+  updateUserCount();
+  assignColor();
+  ws.on('message', handleMessage);
+  ws.on('close', () => {
+    updateUserCount();
+  });
 }
+function updateUserCount() {
+  const userCountUpdate = {
+    type: "countNotification",
+    userNum: wss.clients.size
+  }
+  broadcast(JSON.stringify(userCountUpdate));
+  
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+function assignColor(client) {
+  const assignUserColor = {
+    type: "colorNotification",
+    userColor: getRandomColor()
+  }
+  console.log(assignUserColor.userColor);
+  broadcast(JSON.stringify(assignUserColor));
+}
+
 
 wss.on('connection', handleConnection);

@@ -5,8 +5,12 @@ import MessageList from './MessageList.jsx';
 
 
 const dataObj = {
-  currentUser: {name: 'Anonymous'}, // optional. if currentUser is not defined, it means the user is Anonymous
-  messages: []
+  currentUser: {
+    name: 'Anonymous',
+    color: 'black'
+  }, // optional. if currentUser is not defined, it means the user is Anonymous
+  messages: [],
+  userCount: []
 }
 
 class App extends Component {
@@ -15,11 +19,7 @@ class App extends Component {
     this.state = dataObj;
   }
 
-  get newId() {
-    return this.id++;
-  }
-
-  componentDidMount() {
+  componentWillMount() {
     console.log('componentDidMount <App />');
     this.ws = new WebSocket("ws://localhost:3001");
 
@@ -28,8 +28,21 @@ class App extends Component {
     }
 
     this.ws.onmessage = (evt) => {
-      let newMsg = JSON.parse(evt.data);
-        this.setState({messages: this.state.messages.concat(newMsg)});
+      let content = JSON.parse(evt.data);
+      switch(content.type) {
+        case "incomingMessage":
+          //fall through to next case
+        case "incomingNotification":
+          this.setState({messages: this.state.messages.concat(content)});
+        break;
+        case "countNotification":
+          this.setState({userCount: content.userNum});
+        break;
+        case "colorNotification":
+          console.log(content.userColor);
+          this.state.currentUser.color = content.userColor;
+          this.setState({currentUser: this.state.currentUser});
+      }
     }
   } 
 
@@ -40,9 +53,10 @@ class App extends Component {
   onNewMessage = (content) => {
     const newMessage = {
       type: "postMessage",
-      id: this.newId, 
+      id: this.id, 
       username: this.state.currentUser.name, 
-      content: content.content
+      content: content.content,
+      color: this.state.currentUser.color
     };
     this.ws.send(JSON.stringify(newMessage));
   }
@@ -62,8 +76,10 @@ class App extends Component {
   render() {
     return (
       <div>
-          <NavBar />
-          <MessageList allMessages={ this.state.messages }/>
+          <NavBar userCount={ this.state.userCount }/>
+          <MessageList 
+            allMessages={ this.state.messages }
+            currentUserColor={ this.state.currentUser.color }/>
           <ChatBar 
             currentUser={ this.state.currentUser.name}
             postNotification={ this.postNotification } 
