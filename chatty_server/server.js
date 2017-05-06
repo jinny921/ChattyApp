@@ -19,38 +19,43 @@ function broadcast(data) {
   }
 }
 
-//to add uuid to every message then broadcast to all users
-function handleMessage(data) {
-  const message = JSON.parse(data)
-  switch(message.type) {
-    case "postMessage":
-      message.id = uuid();
-      message.type = "incomingMessage";
-      console.log('Message received!!');
-      break;
-    case "postNotification":
-      message.id = uuid();
-      message.type = "incomingNotification";
-      break;
-  }
-    broadcast(JSON.stringify(message));
-}
 
 function handleConnection(ws) {
   updateUserCount();
-  assignColor();
+  const color = assignColor(ws);
+
+  function handleMessage(data) {
+    const message = JSON.parse(data)
+    switch(message.type) {
+      case "postMessage":
+        message.id = uuid();
+        message.type = "incomingMessage";
+        message.color = color;
+        console.log('Message received!!', message);
+        break;
+      case "postNotification":
+        message.id = uuid();
+        message.type = "incomingNotification";
+        break;
+        default:
+            throw new Error(`Unknown event type ${message.type}`);
+    }
+      broadcast(JSON.stringify(message));
+  }
   ws.on('message', handleMessage);
   ws.on('close', () => {
     updateUserCount();
   });
 }
+wss.on('connection', handleConnection);
+
 function updateUserCount() {
   const userCountUpdate = {
     type: "countNotification",
     userNum: wss.clients.size
   }
   broadcast(JSON.stringify(userCountUpdate));
-  
+  console.log('client size:',userCountUpdate);
 }
 
 function getRandomColor() {
@@ -63,13 +68,14 @@ function getRandomColor() {
 }
 
 function assignColor(client) {
+  const userColor = getRandomColor();
   const assignUserColor = {
     type: "colorNotification",
-    userColor: getRandomColor()
-  }
+    userColor
+  };
   console.log(assignUserColor.userColor);
-  broadcast(JSON.stringify(assignUserColor));
+  client.send(JSON.stringify(assignUserColor));
+  return userColor;
 }
 
 
-wss.on('connection', handleConnection);

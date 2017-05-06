@@ -23,7 +23,11 @@ class ChatBar extends Component {
 
   onEnter = (e) => {
     if (e.key === 'Enter') {
-      this.props.onNewMessage({type: "incomingNotification", username: this.state.username, content: this.state.content});
+      this.props.onNewMessage({
+        type: "incomingNotification", 
+        username: this.state.username, 
+        content: this.state.content,
+    });
       this.setState({
         content: ''
       });

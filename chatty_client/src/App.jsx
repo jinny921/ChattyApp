@@ -9,7 +9,7 @@ const dataObj = {
     name: 'Anonymous',
     color: 'black'
   }, // optional. if currentUser is not defined, it means the user is Anonymous
-  messages: [],
+  messages: [],//user, username, color, content
   userCount: []
 }
 
@@ -19,7 +19,7 @@ class App extends Component {
     this.state = dataObj;
   }
 
-  componentWillMount() {
+  componentDidMount() {
     console.log('componentDidMount <App />');
     this.ws = new WebSocket("ws://localhost:3001");
 
@@ -37,14 +37,19 @@ class App extends Component {
         break;
         case "countNotification":
           this.setState({userCount: content.userNum});
+          console.log(this.state.userCount);
         break;
         case "colorNotification":
           console.log(content.userColor);
           this.state.currentUser.color = content.userColor;
+          console.log('currentcolor', this.state.currentUser.color);
           this.setState({currentUser: this.state.currentUser});
+        break;
+        default:
+          throw new Error(`Unknown event type ${content.type}`);
       }
     }
-  } 
+  }
 
   userChecker = (username) => {
     return username === '' ? 'Anonymous' : username;
@@ -53,11 +58,11 @@ class App extends Component {
   onNewMessage = (content) => {
     const newMessage = {
       type: "postMessage",
-      id: this.id, 
       username: this.state.currentUser.name, 
       content: content.content,
       color: this.state.currentUser.color
     };
+    console.log('newmsgObj',newMessage);
     this.ws.send(JSON.stringify(newMessage));
   }
 
@@ -78,8 +83,7 @@ class App extends Component {
       <div>
           <NavBar userCount={ this.state.userCount }/>
           <MessageList 
-            allMessages={ this.state.messages }
-            currentUserColor={ this.state.currentUser.color }/>
+            allMessages={ this.state.messages }/>
           <ChatBar 
             currentUser={ this.state.currentUser.name}
             postNotification={ this.postNotification } 

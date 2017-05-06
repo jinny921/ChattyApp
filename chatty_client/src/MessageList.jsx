@@ -8,7 +8,7 @@ class MessageList extends Component {
         {this.props.allMessages.map((message)  => {
           return (
             <Message 
-              color={this.props.currentUserColor}
+              color={message.color}
               message={message} 
               key={message.id}/>
             );
