@@ -41,9 +41,10 @@ class App extends Component {
         break;
         case "colorNotification":
           console.log(content.userColor);
-          this.state.currentUser.color = content.userColor;
+          var newUser = this.state.currentUser;
+          newUser.color = content.userColor;
           console.log('currentcolor', this.state.currentUser.color);
-          this.setState({currentUser: this.state.currentUser});
+          this.setState({currentUser: newUser});
         break;
         default:
           throw new Error(`Unknown event type ${content.type}`);
@@ -58,7 +59,7 @@ class App extends Component {
   onNewMessage = (content) => {
     const newMessage = {
       type: "postMessage",
-      username: this.state.currentUser.name, 
+      username: this.state.currentUser.name,
       content: content.content,
       color: this.state.currentUser.color
     };
@@ -73,7 +74,7 @@ class App extends Component {
         type: "postNotification",
         content: `${oldUser} has changed their name to ${newUser}`
       }
-      this.setState({currentUser: {name: newUser}});
+      this.setState({currentUser: {name: newUser, color:this.state.currentUser.color}});
       this.ws.send(JSON.stringify(changeName));
     }
   }
@@ -82,11 +83,11 @@ class App extends Component {
     return (
       <div>
           <NavBar userCount={ this.state.userCount }/>
-          <MessageList 
+          <MessageList
             allMessages={ this.state.messages }/>
-          <ChatBar 
+          <ChatBar
             currentUser={ this.state.currentUser.name}
-            postNotification={ this.postNotification } 
+            postNotification={ this.postNotification }
             onNewMessage={ this.onNewMessage }/>
       </div>
     );

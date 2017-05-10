@@ -22,7 +22,8 @@ function broadcast(data) {
 
 function handleConnection(ws) {
   updateUserCount();
-  const color = assignColor(ws);
+  // const color = assignColor(ws);
+  assignColor(ws);
 
   function handleMessage(data) {
     const message = JSON.parse(data)
@@ -30,7 +31,7 @@ function handleConnection(ws) {
       case "postMessage":
         message.id = uuid();
         message.type = "incomingMessage";
-        message.color = color;
+        // message.color = color;
         console.log('Message received!!', message);
         break;
       case "postNotification":
@@ -71,11 +72,11 @@ function assignColor(client) {
   const userColor = getRandomColor();
   const assignUserColor = {
     type: "colorNotification",
-    userColor
+    userColor: userColor
   };
   console.log(assignUserColor.userColor);
   client.send(JSON.stringify(assignUserColor));
-  return userColor;
+  // return userColor;
 }
 
 
