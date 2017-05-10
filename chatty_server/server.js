@@ -22,7 +22,6 @@ function broadcast(data) {
 
 function handleConnection(ws) {
   updateUserCount();
-  // const color = assignColor(ws);
   assignColor(ws);
 
   function handleMessage(data) {
@@ -31,8 +30,6 @@ function handleConnection(ws) {
       case "postMessage":
         message.id = uuid();
         message.type = "incomingMessage";
-        // message.color = color;
-        console.log('Message received!!', message);
         break;
       case "postNotification":
         message.id = uuid();
@@ -56,7 +53,6 @@ function updateUserCount() {
     userNum: wss.clients.size
   }
   broadcast(JSON.stringify(userCountUpdate));
-  console.log('client size:',userCountUpdate);
 }
 
 function getRandomColor() {
@@ -74,9 +70,7 @@ function assignColor(client) {
     type: "colorNotification",
     userColor: userColor
   };
-  console.log(assignUserColor.userColor);
   client.send(JSON.stringify(assignUserColor));
-  // return userColor;
 }
 
 
