@@ -1,6 +1,5 @@
-A minimal and light dev environment for ReactJS.
-
 ### React Chatty App
+A minimal and light dev environment for ReactJS.
 Real-time chatting app, users with randomly assigned colours, notification sent if user changes username.
 
 ### Dependencies
